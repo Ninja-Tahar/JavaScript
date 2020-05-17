@@ -1,34 +1,80 @@
-const backdropElement = document.getElementById('backdrop');
-const modalLinkElements = document.querySelectorAll('.info-modal');
-let infoModal;
+const defaultResult = 0;
+let currentResult = defaultResult;
+let logEntries = [];
 
-function toggleBackdrop() {
-  backdropElement.classList.toggle('visible');
+// Gets input from input field
+function getUserNumberInput() {
+    return parseInt(usrInput.value);
 }
 
-function presentInfoModal(event) {
-  const text = event.target.dataset.text;
-  toggleBackdrop();
-  infoModal = document.createElement('div');
-  infoModal.classList.add('modal');
-  infoModal.innerHTML = `
-    <h2>More Details</h2>
-    <p>${text}</p>
-  `;
-  const closeButton = document.createElement('button');
-  closeButton.addEventListener('click', hideInfoModal);
-  closeButton.textContent = 'Okay';
-  infoModal.appendChild(closeButton);
-  document.body.appendChild(infoModal);
+// Generates and writes calculation log
+function createAndWriteOutput(operator, resultBeforeCalc, calcNumber) {
+    const calcDescription = `${resultBeforeCalc} ${operator} ${calcNumber}`;
+    outputResult(currentResult, calcDescription); // from vendor file
 }
 
-function hideInfoModal() {
-  toggleBackdrop();
-  document.body.removeChild(infoModal);
+function writeToLog(
+    operationIdentifier,
+    prevResult,
+    operationNumber,
+    newResult
+) {
+    const logEntry = {
+        operation: operationIdentifier,
+        prevResult: prevResult,
+        number: operationNumber,
+        result: newResult
+    };
+    logEntries.push(logEntry);
+    console.log(logEntries);
 }
 
-for (const linkElement of modalLinkElements) {
-  linkElement.addEventListener('click', presentInfoModal);
+function calculateResult(calculationType) {
+    const enteredNumber = getUserNumberInput();
+    if (calculationType !== 'ADD' && calculationType !== 'SUBTRACT' && calculationType !== 'MULTIPLY' &&  calculationType !== 'DIVIDE' || !enteredNumber) {
+        return;
+    }
+
+    if (calculationType === 'ADD' || calculationType === 'SUBTRACT' || calculationType === 'MULTIPLY' || calculationType === 'DIVIDE') {
+
+    const initialResult = currentResult;
+    let mathOperator;
+    if (calculationType === 'ADD') {
+        currentResult += enteredNumber;
+        mathOperator = '+';
+    } else if (calculationType === 'SUBTRACT') {
+        currentResult -= enteredNumber;
+        mathOperator = '-';
+    } else if (calculationType === 'MULTIPLY') {
+        currentResult *= enteredNumber;
+        mathOperator = '*';
+    } else if (calculationType === 'DIVIDE') {
+        currentResult /= enteredNumber;
+        mathOperator = '/';
+    }
+
+    createAndWriteOutput(mathOperator, initialResult, enteredNumber);
+    writeToLog(calculationType, initialResult, enteredNumber, currentResult);
+    }
 }
 
-backdropElement.addEventListener('click', hideInfoModal);
+function add() {
+    calculateResult('ADD');
+}
+
+function subtract() {
+    calculateResult('SUBTRACT');
+}
+
+function multiply() {
+    calculateResult('MULTIPLY');
+}
+
+function divide() {
+    calculateResult('DIVIDE');
+}
+
+addBtn.addEventListener('click', add);
+subtractBtn.addEventListener('click', subtract);
+multiplyBtn.addEventListener('click', multiply);
+divideBtn.addEventListener('click', divide);
