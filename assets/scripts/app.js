@@ -1,34 +1,67 @@
-const backdropElement = document.getElementById('backdrop');
-const modalLinkElements = document.querySelectorAll('.info-modal');
-let infoModal;
+const defaultResult = 0;
+let currentResult = defaultResult;
+let logEntries = [];
 
-function toggleBackdrop() {
-  backdropElement.classList.toggle('visible');
+// Gets input from input field
+function getUserNumberInput() {
+  return usrInput.value;
 }
 
-function presentInfoModal(event) {
-  const text = event.target.dataset.text;
-  toggleBackdrop();
-  infoModal = document.createElement('div');
-  infoModal.classList.add('modal');
-  infoModal.innerHTML = `
-    <h2>More Details</h2>
-    <p>${text}</p>
-  `;
-  const closeButton = document.createElement('button');
-  closeButton.addEventListener('click', hideInfoModal);
-  closeButton.textContent = 'Okay';
-  infoModal.appendChild(closeButton);
-  document.body.appendChild(infoModal);
+// Generates and writes calculation log
+function createAndWriteOutput(operator, resultBeforeCalc, calcNumber) {
+  const calcDescription = `${resultBeforeCalc} ${operator} ${calcNumber}`;
+  outputResult(currentResult, calcDescription); // from vendor file
 }
 
-function hideInfoModal() {
-  toggleBackdrop();
-  document.body.removeChild(infoModal);
+function writeToLog(
+  operationIdentifier,
+  prevResult,
+  operationNumber,
+  newResult
+) {
+  const logEntry = {
+    operation: operationIdentifier,
+    prevResult: prevResult,
+    number: operationNumber,
+    result: newResult
+  };
+  logEntries.push(logEntry);
+  console.log(logEntries);
 }
 
-for (const linkElement of modalLinkElements) {
-  linkElement.addEventListener('click', presentInfoModal);
+function add() {
+  const enteredNumber = getUserNumberInput();
+  const initialResult = currentResult;
+  currentResult += enteredNumber;
+  createAndWriteOutput('+', initialResult, enteredNumber);
+  writeToLog('ADD', initialResult, enteredNumber, currentResult);
 }
 
-backdropElement.addEventListener('click', hideInfoModal);
+function subtract() {
+  const enteredNumber = getUserNumberInput();
+  const initialResult = currentResult;
+  currentResult -= enteredNumber;
+  createAndWriteOutput('-', initialResult, enteredNumber);
+  writeToLog('SUBTRACT', initialResult, enteredNumber, currentResult);
+}
+
+function multiply() {
+  const enteredNumber = getUserNumberInput();
+  const initialResult = currentResult;
+  currentResult *= enteredNumber;
+  createAndWriteOutput('*', initialResult, enteredNumber);
+  writeToLog('MULTIPLY', initialResult, enteredNumber, currentResult);
+}
+
+function divide() {
+  const enteredNumber = getUserNumberInput();
+  const initialResult = currentResult;
+  currentResult /= enteredNumber;
+  createAndWriteOutput('/', initialResult, enteredNumber);
+  writeToLog('DIVIDE', initialResult, enteredNumber, currentResult);
+}
+
+addBtn.addEventListener('click', add);
+subtractBtn.addEventListener('click', subtract);
+multiplyBtn.addEventListener('click', multiply);
+divideBtn.addEventListener('click', divide);
