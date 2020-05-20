@@ -1,80 +1,59 @@
-const defaultResult = 0;
-let currentResult = defaultResult;
-let logEntries = [];
+const ATTACK_VALUE = 10;
+const STRONG_ATTACK_VALUE = 17;
+const MONSTER_ATTACK_VALUE = 14;
+const HEAL_VALUE = 20;
 
-// Gets input from input field
-function getUserNumberInput() {
-    return parseInt(usrInput.value);
-}
+let chosenMaxLife = 100;
+let currentMonsterHealth = chosenMaxLife;
+let currentPlayerHealth = chosenMaxLife;
 
-// Generates and writes calculation log
-function createAndWriteOutput(operator, resultBeforeCalc, calcNumber) {
-    const calcDescription = `${resultBeforeCalc} ${operator} ${calcNumber}`;
-    outputResult(currentResult, calcDescription); // from vendor file
-}
+adjustHealthBars(chosenMaxLife);
 
-function writeToLog(
-    operationIdentifier,
-    prevResult,
-    operationNumber,
-    newResult
-) {
-    const logEntry = {
-        operation: operationIdentifier,
-        prevResult: prevResult,
-        number: operationNumber,
-        result: newResult
-    };
-    logEntries.push(logEntry);
-    console.log(logEntries);
-}
-
-function calculateResult(calculationType) {
-    const enteredNumber = getUserNumberInput();
-    if (calculationType !== 'ADD' && calculationType !== 'SUBTRACT' && calculationType !== 'MULTIPLY' &&  calculationType !== 'DIVIDE' || !enteredNumber) {
-        return;
-    }
-
-    if (calculationType === 'ADD' || calculationType === 'SUBTRACT' || calculationType === 'MULTIPLY' || calculationType === 'DIVIDE') {
-
-    const initialResult = currentResult;
-    let mathOperator;
-    if (calculationType === 'ADD') {
-        currentResult += enteredNumber;
-        mathOperator = '+';
-    } else if (calculationType === 'SUBTRACT') {
-        currentResult -= enteredNumber;
-        mathOperator = '-';
-    } else if (calculationType === 'MULTIPLY') {
-        currentResult *= enteredNumber;
-        mathOperator = '*';
-    } else if (calculationType === 'DIVIDE') {
-        currentResult /= enteredNumber;
-        mathOperator = '/';
-    }
-
-    createAndWriteOutput(mathOperator, initialResult, enteredNumber);
-    writeToLog(calculationType, initialResult, enteredNumber, currentResult);
+function endRound() {
+    const playerDamage = dealPlayerDamage(MONSTER_ATTACK_VALUE);
+    currentPlayerHealth -= playerDamage;
+    if (currentMonsterHealth <= 0 && currentPlayerHealth > 0) {
+        alert('You won!');
+    } else if (currentPlayerHealth <= 0 && currentMonsterHealth > 0) {
+        alert('You lost!');
+    } else if (currentPlayerHealth <= 0 && currentMonsterHealth <= 0) {
+        alert('You have a draw!');
     }
 }
 
-function add() {
-    calculateResult('ADD');
+function attackMonster(mode) {
+    let maxDamage;
+    if (mode === 'ATTACK') {
+        maxDamage = ATTACK_VALUE;
+    } else if (mode === 'STRONG_ATTACK') {
+        maxDamage = STRONG_ATTACK_VALUE;
+    }
+    const damage = dealMonsterDamage(maxDamage);
+    currentMonsterHealth -= damage;
+    endRound();
 }
 
-function subtract() {
-    calculateResult('SUBTRACT');
+function attackHandler() {
+    attackMonster('ATTACK');
 }
 
-function multiply() {
-    calculateResult('MULTIPLY');
+function strongAttackHandler() {
+    attackMonster('STRONG_ATTACK');
 }
 
-function divide() {
-    calculateResult('DIVIDE');
+function healPlayerHandler() {
+    let healValue;
+    if (currentPlayerHealth >= chosenMaxLife - HEAL_VALUE) {
+        alert("You can't heal to more than your max initial health.");
+        healValue = chosenMaxLife - currentPlayerHealth;
+    } else {
+        healValue = HEAL_VALUE;
+    }
+    increasePlayerHealth(healValue);
+    currentPlayerHealth += healValue;
+    endRound();
 }
 
-addBtn.addEventListener('click', add);
-subtractBtn.addEventListener('click', subtract);
-multiplyBtn.addEventListener('click', multiply);
-divideBtn.addEventListener('click', divide);
+attackBtn.addEventListener('click', attackHandler);
+strongAttackBtn.addEventListener('click', strongAttackHandler);
+healBtn.addEventListener('click', healPlayerHandler);
